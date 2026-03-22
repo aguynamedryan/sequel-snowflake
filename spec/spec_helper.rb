@@ -5,6 +5,6 @@ require 'simplecov'
 SimpleCov.start do
   add_filter 'spec'
 end
-SimpleCov.minimum_coverage(100)
+SimpleCov.minimum_coverage(ENV['SNOWFLAKE_CONN_STR'].to_s.empty? ? 0 : 100)
 
 require 'sequel-snowflake'
