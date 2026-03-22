@@ -2,6 +2,17 @@ module Sequel
   module Snowflake
     Sequel::Database.set_shared_adapter_scheme(:snowflake, self)
 
+    module DatabaseMethods
+      def database_type
+        :snowflake
+      end
+
+      # Default varchar size is the maximum (https://docs.snowflake.com/en/sql-reference/data-types-text.html#varchar)
+      def default_string_column_size
+        16777216
+      end
+    end
+
     module DatasetMethods
       # Return an array of strings specifying a query explanation for a SELECT of the
       # current dataset.
@@ -27,6 +38,32 @@ module Sequel
         rows = ds.all
         Sequel::PrettyTable.string(rows, ds.columns)
       end
+
+      # https://docs.snowflake.com/en/sql-reference/constructs/group-by-cube
+      def supports_group_cube?
+        true
+      end
+
+      # https://docs.snowflake.com/en/sql-reference/constructs/group-by-rollup
+      def supports_group_rollup?
+        true
+      end
+
+      # https://docs.snowflake.com/en/sql-reference/constructs/group-by-grouping-sets
+      def supports_grouping_sets?
+        true
+      end
+
+      # https://docs.snowflake.com/en/sql-reference/sql/merge
+      def supports_merge?
+        true
+      end
+
+      # Snowflake can insert multiple rows using VALUES (https://stackoverflow.com/q/64578007)
+      def multi_insert_sql_strategy
+        :values
+      end
+      private :multi_insert_sql_strategy
     end
   end
 end

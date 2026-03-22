@@ -8,10 +8,7 @@ require_relative 'shared/snowflake'
 module Sequel
   module Snowflake
     class Database < Sequel::ODBC::Database
-      # Default varchar size is the maximum (https://docs.snowflake.com/en/sql-reference/data-types-text.html#varchar)
-      def default_string_column_size
-        16777216
-      end
+      include Snowflake::DatabaseMethods
 
       def dataset_class_default
         Sequel::Snowflake::Dataset
@@ -36,26 +33,6 @@ module Sequel
           end
         end
         self
-      end
-
-      # https://docs.snowflake.com/en/sql-reference/constructs/group-by-cube
-      def supports_group_cube?
-        true
-      end
-
-      # https://docs.snowflake.com/en/sql-reference/constructs/group-by-rollup
-      def supports_group_rollup?
-        true
-      end
-
-      # https://docs.snowflake.com/en/sql-reference/constructs/group-by-grouping-sets
-      def supports_grouping_sets?
-        true
-      end
-
-      # https://docs.snowflake.com/en/sql-reference/sql/merge
-      def supports_merge?
-        true
       end
 
       # This is similar to the ODBC adapter's Dataset#convert_odbc_value, except for some special casing
@@ -94,11 +71,6 @@ module Sequel
       end
       private :convert_snowflake_value
 
-      # Snowflake can insert multiple rows using VALUES (https://stackoverflow.com/q/64578007)
-      def multi_insert_sql_strategy
-        :values
-      end
-      private :multi_insert_sql_strategy
     end
   end
 end
