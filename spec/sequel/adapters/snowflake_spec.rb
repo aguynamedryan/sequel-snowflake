@@ -1,15 +1,16 @@
 require 'securerandom'
 
 describe Sequel::Snowflake::Dataset do
-  let(:db) { @db ||= Sequel.connect(adapter: :snowflake, drvconnect: ENV['SNOWFLAKE_CONN_STR']) }
-  
   before(:all) do
+    skip 'SNOWFLAKE_CONN_STR not set' if ENV['SNOWFLAKE_CONN_STR'].to_s.empty?
     @db = Sequel.connect(adapter: :snowflake, drvconnect: ENV['SNOWFLAKE_CONN_STR'])
   end
-  
+
   after(:all) do
     @db.disconnect if @db
   end
+
+  let(:db) { @db }
 
   describe 'Converting Snowflake data types' do
     # Create a test table with a reasonably-random suffix
@@ -80,6 +81,8 @@ describe Sequel::Snowflake::Dataset do
 
   describe 'GROUP BY features' do
     before(:all) do
+      skip 'SNOWFLAKE_CONN_STR not set' if ENV['SNOWFLAKE_CONN_STR'].to_s.empty?
+
       @products = "SEQUEL_SNOWFLAKE_SPECS_#{SecureRandom.hex(10)}".to_sym
       @sales = "SEQUEL_SNOWFLAKE_SPECS_#{SecureRandom.hex(10)}".to_sym
 
@@ -108,8 +111,8 @@ describe Sequel::Snowflake::Dataset do
     end
 
     after(:all) do
-      @db.drop_table(@products) if @products
-      @db.drop_table(@sales) if @sales
+      @db.drop_table(@products) if @products && @db
+      @db.drop_table(@sales) if @sales && @db
     end
 
     let(:products) { @products }
@@ -196,6 +199,8 @@ describe Sequel::Snowflake::Dataset do
 
   describe 'MERGE feature' do
     before(:all) do
+      skip 'SNOWFLAKE_CONN_STR not set' if ENV['SNOWFLAKE_CONN_STR'].to_s.empty?
+
       @target_table = "SEQUEL_SNOWFLAKE_SPECS_#{SecureRandom.hex(10)}".to_sym
       @source_table = "SEQUEL_SNOWFLAKE_SPECS_#{SecureRandom.hex(10)}".to_sym
 
@@ -213,8 +218,8 @@ describe Sequel::Snowflake::Dataset do
     end
 
     after(:all) do
-      @db.drop_table(@target_table) if @target_table
-      @db.drop_table(@source_table) if @source_table
+      @db.drop_table(@target_table) if @target_table && @db
+      @db.drop_table(@source_table) if @source_table && @db
     end
 
     before(:each) do
@@ -241,6 +246,8 @@ describe Sequel::Snowflake::Dataset do
 
   describe '#explain' do
     before(:all) do
+      skip 'SNOWFLAKE_CONN_STR not set' if ENV['SNOWFLAKE_CONN_STR'].to_s.empty?
+
       @test_table = "SEQUEL_SNOWFLAKE_SPECS_#{SecureRandom.hex(10)}".to_sym
 
       @db.create_table(@test_table, :temp => true) do
@@ -256,7 +263,7 @@ describe Sequel::Snowflake::Dataset do
     end
 
     after(:all) do
-      @db.drop_table(@test_table) if @test_table
+      @db.drop_table(@test_table) if @test_table && @db
     end
 
     let(:test_table) { @test_table }
