@@ -60,3 +60,7 @@ Gemfile.lock
 
 # Jetbrains IDEs
 .idea/
+
+# Dolt database files (added by bd init)
+.dolt/
+*.db
